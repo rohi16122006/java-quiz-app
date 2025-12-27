@@ -1,132 +1,133 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Java Online Examination</title>
+<title>Java Online Examination</title>
 
-    <style>
-        /* ===== SIMPLE BACKGROUND WITH JAVA WATERMARK ===== */
-        body {
-            margin: 0;
-            height: 100vh;
-            font-family: "Segoe UI", Arial, sans-serif;
-            background: linear-gradient(135deg, #f0f4ff, #ffffff);
-            overflow: hidden;
-            position: relative;
-        }
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #fdfefe);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        /* Java watermark */
-        body::before {
-            content: "JAVA";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-25deg);
-            font-size: 180px;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.05);
-            z-index: 0;
-            pointer-events: none;
-        }
+/* Java watermark */
+body::before {
+    content: "JAVA";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-20deg);
+    font-size: 180px;
+    font-weight: bold;
+    color: rgba(0,0,0,0.04);
+    pointer-events: none;
+}
 
-        /* ===== QUIZ CARD ===== */
-        .quiz-box {
-            width: 720px;
-            margin: auto;
-            margin-top: 60px;
-            background: rgba(255, 255, 255, 0.96);
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 0 25px rgba(0,0,0,0.25);
-            position: relative;
-            z-index: 1;
-        }
+.box {
+    width: 720px;
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    position: relative;
+}
 
-        .timer {
-            position: absolute;
-            top: 18px;
-            right: 22px;
-            color: #dc3545;
-            font-weight: bold;
-            font-size: 18px;
-            background: #fff0f0;
-            padding: 6px 14px;
-            border-radius: 8px;
-        }
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        .qno {
-            font-weight: bold;
-            font-size: 15px;
-            color: #555;
-            margin-bottom: 10px;
-        }
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+}
 
-        .question {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 25px;
-            color: #111;
-        }
+button {
+    padding: 12px 26px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    background: #1976d2;
+    color: white;
+}
 
-        .options label {
-            display: block;
-            padding: 14px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            margin-bottom: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 16px;
-        }
+button:disabled {
+    background: #aaa;
+}
 
-        .options label:hover {
-            background: #eef2ff;
-            border-color: #667eea;
-        }
+.timer {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-weight: bold;
+    color: #d32f2f;
+}
 
-        .buttons {
-            margin-top: 25px;
-            display: flex;
-            justify-content: space-between;
-        }
+.question {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 20px 0;
+}
 
-        button {
-            padding: 12px 28px;
-            font-size: 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            background: #667eea;
-            color: white;
-        }
+.option {
+    border: 2px solid #ddd;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
-        button:disabled {
-            background: #aaa;
-            cursor: not-allowed;
-        }
+.option:hover {
+    background: #e3f2fd;
+}
 
-        .submit-btn {
-            display: block;
-            margin: 35px auto 0;
-            background: #28a745;
-        }
-    </style>
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}
+</style>
 </head>
 
 <body>
 
-<div class="quiz-box">
-    <div class="timer" id="timer">00:00</div>
+<!-- START SCREEN -->
+<div class="box" id="startScreen">
+    <h2>Java Online Examination</h2>
+    <input id="name" placeholder="Enter Name">
+    <input id="usn" placeholder="Enter USN">
+    <input id="email" placeholder="Enter Email">
+    <button onclick="startExam()" style="width:100%">Start Exam</button>
+</div>
 
-    <div class="qno" id="qno"></div>
+<!-- QUIZ SCREEN -->
+<div class="box hidden" id="quizScreen">
+    <div class="timer" id="timer">00:00</div>
+    <div id="qno"></div>
     <div class="question" id="question"></div>
-    <div class="options" id="options"></div>
+    <div id="options"></div>
 
     <div class="buttons">
         <button onclick="prev()">Previous</button>
         <button id="nextBtn" onclick="next()" disabled>Next</button>
     </div>
 
-    <button class="submit-btn" onclick="confirmSubmit()">Submit Exam</button>
+    <button onclick="confirmSubmit()" style="margin-top:25px;background:#2e7d32;width:100%">
+        Submit Exam
+    </button>
 </div>
 
 <script>
@@ -136,36 +137,48 @@ let answers = [];
 let timeLeft = 0;
 let submitted = false;
 
-/* ENTER FULL SCREEN (BEST EFFORT) */
-function openFullScreen() {
-    if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(() => {});
+/* START EXAM */
+function startExam() {
+    let name = document.getElementById("name").value.trim();
+    let usn = document.getElementById("usn").value.trim();
+    let email = document.getElementById("email").value.trim();
+
+    if (!name || !usn || !email) {
+        alert("Please fill all details");
+        return;
     }
+
+    sessionStorage.setItem("name", name);
+    sessionStorage.setItem("usn", usn);
+    sessionStorage.setItem("email", email);
+
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("quizScreen").classList.remove("hidden");
+
+    document.documentElement.requestFullscreen().catch(()=>{});
+
+    fetch("/api/questions")
+        .then(res => res.json())
+        .then(data => {
+            questions = data;
+            timeLeft = questions.length * 120;
+            loadQuestion();
+        });
 }
-openFullScreen();
 
-/* LOAD QUESTIONS */
-fetch("/api/questions")
-.then(res => res.json())
-.then(data => {
-    questions = data;
-    timeLeft = questions.length * 120;
-    loadQuestion();
-});
-
+/* LOAD QUESTION */
 function loadQuestion() {
     let q = questions[index];
-
     document.getElementById("qno").innerText =
         "Question " + (index + 1) + " of " + questions.length;
 
     document.getElementById("question").innerText = q.question;
 
     document.getElementById("options").innerHTML = `
-        <label><input type="radio" name="opt" onclick="selectAnswer(0)"> A. ${q.optionA}</label>
-        <label><input type="radio" name="opt" onclick="selectAnswer(1)"> B. ${q.optionB}</label>
-        <label><input type="radio" name="opt" onclick="selectAnswer(2)"> C. ${q.optionC}</label>
-        <label><input type="radio" name="opt" onclick="selectAnswer(3)"> D. ${q.optionD}</label>
+        <div class="option" onclick="selectAnswer(0)">A. ${q.optionA}</div>
+        <div class="option" onclick="selectAnswer(1)">B. ${q.optionB}</div>
+        <div class="option" onclick="selectAnswer(2)">C. ${q.optionC}</div>
+        <div class="option" onclick="selectAnswer(3)">D. ${q.optionD}</div>
     `;
 
     document.getElementById("nextBtn").disabled = answers[index] == null;
@@ -190,14 +203,13 @@ function prev() {
     }
 }
 
-/* CONFIRM SUBMIT */
+/* SUBMIT */
 function confirmSubmit() {
     if (confirm("Are you sure you want to submit the exam?")) {
         submitQuiz();
     }
 }
 
-/* SUBMIT */
 function submitQuiz() {
     if (submitted) return;
     submitted = true;
@@ -209,7 +221,7 @@ function submitQuiz() {
 
 /* TIMER */
 setInterval(() => {
-    if (submitted) return;
+    if (submitted || document.getElementById("quizScreen").classList.contains("hidden")) return;
 
     if (timeLeft <= 0) {
         submitQuiz();
@@ -217,15 +229,12 @@ setInterval(() => {
         timeLeft--;
         let m = Math.floor(timeLeft / 60);
         let s = timeLeft % 60;
-        document.getElementById("timer").innerText =
-            m + ":" + (s < 10 ? "0" + s : s);
+        document.getElementById("timer").innerText = m + ":" + (s < 10 ? "0" + s : s);
     }
 }, 1000);
 
-/* AUTO SUBMIT ON TAB SWITCH / MINIMIZE */
-window.addEventListener("blur", () => {
-    submitQuiz();
-});
+/* AUTO SUBMIT ON TAB SWITCH */
+window.addEventListener("blur", submitQuiz);
 </script>
 
 </body>
