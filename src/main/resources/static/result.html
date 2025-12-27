@@ -2,23 +2,63 @@
 <html>
 <head>
 <title>Quiz Result</title>
+
 <style>
 body {
-    font-family: Arial;
-    background:#eef2ff;
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #ffffff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body::before {
+    content: "JAVA";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-20deg);
+    font-size: 180px;
+    font-weight: bold;
+    color: rgba(0,0,0,0.04);
+    pointer-events: none;
 }
 
 .result-box {
-    width: 500px;
-    margin: 60px auto;
+    width: 800px;
     background: white;
-    padding: 20px;
-    border-radius: 8px;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
-.user-info {
-    font-size: 15px;
+h2 {
+    text-align: center;
     margin-bottom: 10px;
+}
+
+.info {
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.score {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.correct { color: green; font-weight: bold; }
+.wrong { color: red; font-weight: bold; }
+
+.question-box {
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+    margin-top: 15px;
 }
 </style>
 </head>
@@ -28,50 +68,65 @@ body {
 <div class="result-box">
     <h2>Quiz Result</h2>
 
-    <!-- USER DETAILS -->
-    <div class="user-info" id="userInfo"></div>
+    <div class="info">
+        <b>Name:</b> <span id="name"></span><br>
+        <b>USN:</b> <span id="usn"></span><br>
+        <b>Email:</b> <span id="email"></span>
+    </div>
 
-    <div id="score"></div>
-    <hr>
+    <div class="score" id="score"></div>
+
     <div id="summary"></div>
 </div>
 
 <script>
-let questions = JSON.parse(sessionStorage.getItem("questions")) || [];
-let answers = JSON.parse(sessionStorage.getItem("answers")) || [];
+const questions = JSON.parse(sessionStorage.getItem("questions")) || [];
+const answers = JSON.parse(sessionStorage.getItem("answers")) || [];
 
-let name = sessionStorage.getItem("name");
-let usn  = sessionStorage.getItem("usn");
+const name = sessionStorage.getItem("name") || "N/A";
+const usn = sessionStorage.getItem("usn") || "N/A";
+const email = sessionStorage.getItem("email") || "N/A";
 
-document.getElementById("userInfo").innerHTML = `
-    <b>Name:</b> ${name || "N/A"}<br>
-    <b>USN:</b> ${usn || "N/A"}
-`;
+document.getElementById("name").innerText = name;
+document.getElementById("usn").innerText = usn;
+document.getElementById("email").innerText = email;
 
 let score = 0;
-let summary = "";
+let summaryHTML = "";
 
-/* SUMMARY ALWAYS STARTS FROM QUESTION 1 */
+/* ✅ ALWAYS START FROM QUESTION 1 */
 for (let i = 0; i < questions.length; i++) {
-    let q = questions[i];
-    let userAns = answers[i];
-    let correct = q.correctOption;
+    const q = questions[i];
+    const userAns = answers[i];
+    const correctAns = q.correctOption;
 
-    if (userAns === correct) score++;
+    if (userAns === correctAns) score++;
 
-    summary += `
-        <p>
-            <b>Q${i+1}:</b> ${q.question}<br>
-            Your Answer: ${userAns != null ? String.fromCharCode(65 + userAns) : "Not Answered"}<br>
-            Correct Answer: ${String.fromCharCode(65 + correct)}
-        </p>
+    summaryHTML += `
+        <div class="question-box">
+            <b>Q${i + 1}. ${q.question}</b><br><br>
+            Your Answer:
+            <span class="${userAns === correctAns ? 'correct' : 'wrong'}">
+                ${userAns != null ? String.fromCharCode(65 + userAns) : "Not Answered"}
+            </span><br>
+            Correct Answer:
+            <span class="correct">${String.fromCharCode(65 + correctAns)}</span>
+        </div>
     `;
 }
 
-document.getElementById("score").innerHTML =
-    `<b>Score:</b> ${score} / ${questions.length}`;
+const percentage = questions.length > 0
+    ? Math.round((score / questions.length) * 100)
+    : 0;
 
-document.getElementById("summary").innerHTML = summary;
+document.getElementById("score").innerText =
+    `Score: ${score} / ${questions.length} (${percentage}%)`;
+
+document.getElementById("summary").innerHTML = summaryHTML;
+
+/* 🚫 Prevent going back to exam */
+history.pushState(null, "", location.href);
+window.onpopstate = () => history.pushState(null, "", location.href);
 </script>
 
 </body>
