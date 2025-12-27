@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz Result</title>
+<style>
+body { font-family: Arial; background:#eef2ff; }
+.result-box {
+    width: 500px;
+    margin: 60px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="result-box">
+<h2>Quiz Result</h2>
+<div id="score"></div>
+<hr>
+<div id="summary"></div>
+</div>
+
+<script>
+let questions = JSON.parse(sessionStorage.getItem("questions"));
+let answers = JSON.parse(sessionStorage.getItem("answers"));
+
+let score = 0;
+let summary = "";
+
+questions.forEach((q,i)=>{
+    let userAns = answers[i];
+    let correct = q.correctOption;
+    if (userAns === correct) score++;
+
+    summary += `<p>Q${i+1}: ${q.question}<br>
+    Your Answer: ${userAns!=null ? String.fromCharCode(65+userAns) : "Not Answered"}<br>
+    Correct Answer: ${String.fromCharCode(65+correct)}</p>`;
+});
+
+document.getElementById("score").innerHTML =
+    `<b>Score:</b> ${score} / ${questions.length}`;
+
+document.getElementById("summary").innerHTML = summary;
+</script>
+
+</body>
+</html>
