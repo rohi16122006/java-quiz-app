@@ -63,6 +63,12 @@ body::before {
     background: #e3f2fd;
 }
 
+.option.selected {
+    background: #bbdefb;
+    border-color: #1976d2;
+    font-weight: bold;
+}
+
 .buttons {
     display: flex;
     justify-content: space-between;
@@ -116,8 +122,6 @@ let index = 0;
 let answers = [];
 let timeLeft = 0;
 let submitted = false;
-
-/* 🔒 Anti-cheat control */
 let antiCheatEnabled = false;
 
 /* START EXAM */
@@ -146,34 +150,39 @@ function startExam() {
             questions = data;
             timeLeft = questions.length * 120;
             loadQuestion();
-
-            /* ✅ Enable anti-cheat AFTER first question loads */
-            setTimeout(() => {
-                antiCheatEnabled = true;
-            }, 2000);
+            setTimeout(() => antiCheatEnabled = true, 2000);
         });
 }
 
 /* LOAD QUESTION */
 function loadQuestion() {
     let q = questions[index];
+
     document.getElementById("qno").innerText =
         "Question " + (index + 1) + " of " + questions.length;
 
     document.getElementById("question").innerText = q.question;
 
     document.getElementById("options").innerHTML = `
-        <div class="option" onclick="selectAnswer(0)">A. ${q.optionA}</div>
-        <div class="option" onclick="selectAnswer(1)">B. ${q.optionB}</div>
-        <div class="option" onclick="selectAnswer(2)">C. ${q.optionC}</div>
-        <div class="option" onclick="selectAnswer(3)">D. ${q.optionD}</div>
+        <div class="option ${answers[index]===0?'selected':''}" onclick="selectAnswer(0)">A. ${q.optionA}</div>
+        <div class="option ${answers[index]===1?'selected':''}" onclick="selectAnswer(1)">B. ${q.optionB}</div>
+        <div class="option ${answers[index]===2?'selected':''}" onclick="selectAnswer(2)">C. ${q.optionC}</div>
+        <div class="option ${answers[index]===3?'selected':''}" onclick="selectAnswer(3)">D. ${q.optionD}</div>
     `;
 
     document.getElementById("nextBtn").disabled = answers[index] == null;
 }
 
+/* SELECT ANSWER */
 function selectAnswer(i) {
     answers[index] = i;
+
+    document.querySelectorAll(".option").forEach(o =>
+        o.classList.remove("selected")
+    );
+
+    document.querySelectorAll(".option")[i].classList.add("selected");
+
     document.getElementById("nextBtn").disabled = false;
 }
 
@@ -217,7 +226,7 @@ setInterval(() => {
     }
 }, 1000);
 
-/* 🚨 AUTO-SUBMIT ONLY WHEN ANTI-CHEAT IS ENABLED */
+/* AUTO SUBMIT ON TAB SWITCH */
 document.addEventListener("visibilitychange", () => {
     if (document.hidden && antiCheatEnabled && !submitted) {
         submitQuiz();
