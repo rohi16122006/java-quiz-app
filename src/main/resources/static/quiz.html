@@ -8,7 +8,7 @@ body {
     margin: 0;
     height: 100vh;
     font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #e3f2fd, #fdfefe);
+    background: linear-gradient(135deg, #e3f2fd, #ffffff);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -36,9 +36,12 @@ body::before {
     position: relative;
 }
 
+.hidden {
+    display: none;
+}
+
 h2 {
     text-align: center;
-    margin-bottom: 20px;
 }
 
 input {
@@ -47,7 +50,6 @@ input {
     margin-bottom: 14px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-size: 15px;
 }
 
 button {
@@ -95,10 +97,6 @@ button:disabled {
     justify-content: space-between;
     margin-top: 20px;
 }
-
-.hidden {
-    display: none;
-}
 </style>
 </head>
 
@@ -110,7 +108,7 @@ button:disabled {
     <input id="name" placeholder="Enter Name">
     <input id="usn" placeholder="Enter USN">
     <input id="email" placeholder="Enter Email">
-    <button onclick="startExam()" style="width:100%">Start Exam</button>
+    <button style="width:100%" onclick="startExam()">Start Exam</button>
 </div>
 
 <!-- QUIZ SCREEN -->
@@ -125,9 +123,8 @@ button:disabled {
         <button id="nextBtn" onclick="next()" disabled>Next</button>
     </div>
 
-    <button onclick="confirmSubmit()" style="margin-top:25px;background:#2e7d32;width:100%">
-        Submit Exam
-    </button>
+    <button style="margin-top:25px;background:#2e7d32;width:100%"
+            onclick="confirmSubmit()">Submit Exam</button>
 </div>
 
 <script>
@@ -136,6 +133,7 @@ let index = 0;
 let answers = [];
 let timeLeft = 0;
 let submitted = false;
+let examStarted = false;   // ✅ IMPORTANT FIX
 
 /* START EXAM */
 function startExam() {
@@ -151,6 +149,8 @@ function startExam() {
     sessionStorage.setItem("name", name);
     sessionStorage.setItem("usn", usn);
     sessionStorage.setItem("email", email);
+
+    examStarted = true;   // ✅ Exam officially starts here
 
     document.getElementById("startScreen").classList.add("hidden");
     document.getElementById("quizScreen").classList.remove("hidden");
@@ -169,6 +169,7 @@ function startExam() {
 /* LOAD QUESTION */
 function loadQuestion() {
     let q = questions[index];
+
     document.getElementById("qno").innerText =
         "Question " + (index + 1) + " of " + questions.length;
 
@@ -216,12 +217,13 @@ function submitQuiz() {
 
     sessionStorage.setItem("questions", JSON.stringify(questions));
     sessionStorage.setItem("answers", JSON.stringify(answers));
+
     window.location.href = "result.html";
 }
 
 /* TIMER */
 setInterval(() => {
-    if (submitted || document.getElementById("quizScreen").classList.contains("hidden")) return;
+    if (!examStarted || submitted) return;
 
     if (timeLeft <= 0) {
         submitQuiz();
@@ -229,12 +231,23 @@ setInterval(() => {
         timeLeft--;
         let m = Math.floor(timeLeft / 60);
         let s = timeLeft % 60;
-        document.getElementById("timer").innerText = m + ":" + (s < 10 ? "0" + s : s);
+        document.getElementById("timer").innerText =
+            m + ":" + (s < 10 ? "0" + s : s);
     }
 }, 1000);
 
-/* AUTO SUBMIT ON TAB SWITCH */
-window.addEventListener("blur", submitQuiz);
+/* AUTO SUBMIT ONLY AFTER EXAM STARTS */
+window.addEventListener("blur", () => {
+    if (examStarted && !submitted) {
+        submitQuiz();
+    }
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden && examStarted && !submitted) {
+        submitQuiz();
+    }
+});
 </script>
 
 </body>
